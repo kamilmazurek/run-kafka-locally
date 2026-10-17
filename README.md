@@ -25,7 +25,7 @@ The goal is to keep it useful, simple, clean, and easy to run.
 Following steps provide a quick way to get started with the environment:
 
 1. Ensure Docker (with Docker Compose) is running on your machine, as it is required to orchestrate the containerized infrastructure.
-2. Download the source code either by cloning the repository with Git or by downloading the ZIP file. If you downloaded the ZIP, extract it. Then navigate to the local-environment-with-kafka folder.
+2. Download the source code either by cloning the repository with Git or by downloading the ZIP file. If you downloaded the ZIP, extract it. Then navigate to the run-kafka-locally folder.
 3. Start the environment in the background to run the Kafka broker, Schema Registry, ksqlDB, and AKHQ:
 
    **For Linux/macOS:**
@@ -498,7 +498,7 @@ Simple as that, you can stop containers or clean the environment to start fresh 
 
 ## Additional Resources
 
-* [Local Environment with Kafka, Docker, AKHQ, Schema Registry and ksqlDB](https://kamilmazurek.pl/local-environment-with-kafka)
+* [Local Environment with Kafka, Docker, AKHQ, Schema Registry and ksqlDB](https://kamilmazurek.pl/run-kafka-locally)
 * [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
 * [KRaft: Apache Kafka Without ZooKeeper](https://developer.confluent.io/learn/kraft/)
 * [ksqlDB Documentation](https://docs.confluent.io/platform/current/ksqldb/overview.html)
