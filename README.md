@@ -1,5 +1,5 @@
 > This documentation is also available in an enhanced form at
-> [Local Environment with Kafka](https://kamilmazurek.pl/local-environment-with-kafka) page.
+> [Run Kafka Locally](https://kamilmazurek.pl/run-kafka-locally) page.
 
 # Run Kafka Locally
 
