@@ -8,7 +8,7 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
-      CLUSTER_ID: 'local-env-with-kafka-001'
+      CLUSTER_ID: 'run-kafka-locally-0001'
 
       # Networking and listeners
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9092
@@ -72,6 +72,7 @@ services:
       KSQL_HOST_NAME: ksqldb-server
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+      KSQL_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
 
   ksqldb-cli:
     image: confluentinc/cp-ksqldb-cli:7.6.0
