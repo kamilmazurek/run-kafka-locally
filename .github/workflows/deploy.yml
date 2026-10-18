@@ -1,4 +1,4 @@
-name: Deploy & Test
+name: Deploy
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy-and-test:
+  deploy:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
