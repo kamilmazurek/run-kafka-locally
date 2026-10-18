@@ -1,0 +1,51 @@
+name: Deploy & Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-and-test:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Make wrapper script executable
+        run: chmod +x local-env
+
+      - name: Start the local environment
+        run: ./local-env start
+
+      - name: Wait for environment initialization
+        run: sleep 30
+
+      - name: Verify Kafka broker is ready
+        run: docker exec kafka kafka-topics --bootstrap-server localhost:9092 --list
+
+      - name: Verify Schema Registry is reachable
+        run: curl --fail --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors http://localhost:8081/subjects > /dev/null
+
+      - name: Verify ksqlDB Server is healthy
+        run: curl --fail --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors http://localhost:8088/healthcheck > /dev/null
+
+      - name: Verify AKHQ UI is reachable
+        run: curl --fail --silent --show-error --location --retry 10 --retry-delay 5 --retry-all-errors http://localhost:8080 > /dev/null
+
+      - name: Test seeding data
+        run: ./local-env test-data
+
+      - name: Display logs on failure
+        if: failure()
+        run: docker compose logs --tail=100
+
+      - name: Clean up environment
+        if: always()
+        run: ./local-env clean
