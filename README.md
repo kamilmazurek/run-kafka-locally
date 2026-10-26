@@ -4,6 +4,7 @@
 # Run Kafka Locally
 
 [![Deploy](https://github.com/kamilmazurek/run-kafka-locally/actions/workflows/deploy.yml/badge.svg)](https://github.com/kamilmazurek/run-kafka-locally/actions/workflows/deploy.yml)
+[![codecov](https://codecov.io/gh/kamilmazurek/run-kafka-locally/graph/badge.svg)](https://codecov.io/gh/kamilmazurek/run-kafka-locally)
 
 This repository contains an implementation of a local environment using **Apache Kafka** running in KRaft mode, **ksqlDB**, **AKHQ**, and **Schema Registry**.
 Built with **Docker Compose**, this containerized setup is designed to help you quickly start working with Kafka, e.g., for data engineering, building microservices, developing stream processing applications, performing data analysis, or designing ETL pipelines.
