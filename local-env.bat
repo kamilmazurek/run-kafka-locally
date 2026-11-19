@@ -1,94 +1,109 @@
 @echo off
+SETLOCAL
 
-:: Check if a command was passed
-IF "%~1"=="" GOTO :Help
+CALL :route "%~1"
+EXIT /B %ERRORLEVEL%
 
-:: Route to the appropriate function
-IF /I "%~1"=="start" GOTO :Start
-IF /I "%~1"=="stop" GOTO :Stop
-IF /I "%~1"=="clean" GOTO :Clean
-IF /I "%~1"=="status" GOTO :Status
-IF /I "%~1"=="logs" GOTO :Logs
-IF /I "%~1"=="ksql" GOTO :Ksql
-IF /I "%~1"=="test-data" GOTO :TestData
-
-:Help
-echo.
-echo ========================================================
-echo   Local Environment Manager
-echo ========================================================
-echo Usage: local-env [command]
-echo.
-echo Commands:
-echo   start     - Starts the environment in the background
-echo   stop      - Stops the environment without deleting data
-echo   clean     - Stops the environment and deletes volumes
-echo   status    - Shows the status of the containers
-echo   logs      - Tails the logs for all services
-echo   ksql      - Opens the interactive ksqlDB CLI
-echo   test-data - Seeds the environment with test data
-echo.
-GOTO :EOF
-
-:Start
-echo Starting local environment...
-docker compose up -d
-
-IF %ERRORLEVEL% NEQ 0 (
+:help
     echo.
-    echo Error: Failed to start the local environment.
-    echo Please check if the Docker Desktop/daemon is running.
-    GOTO :EOF
-)
+    echo ========================================================
+    echo   Local Environment Manager
+    echo ========================================================
+    echo Usage: local-env [command]
+    echo.
+    echo Commands:
+    echo   start     - Starts the environment in the background
+    echo   stop      - Stops the environment without deleting data
+    echo   clean     - Stops the environment and deletes volumes
+    echo   status    - Shows the status of the containers
+    echo   logs      - Tails the logs for all services
+    echo   ksql      - Opens the interactive ksqlDB CLI
+    echo   test-data - Seeds the environment with test data
+    echo.
+    EXIT /B 0
 
-echo.
-echo Environment is up!
-echo - Kafka Broker: localhost:9092
-echo - Schema Registry: http://localhost:8081
-echo - AKHQ UI: http://localhost:8080
-echo - ksqlDB Server: http://localhost:8088
-echo.
-echo Type 'local-env help' to see available commands.
-GOTO :EOF
+:start
+    echo Starting local environment...
+    docker compose up -d
 
-:Stop
-echo Stopping local environment...
-docker compose down
-GOTO :EOF
+    IF %ERRORLEVEL% NEQ 0 (
+        echo.
+        echo Error: Failed to start the local environment.
+        echo Please check if the Docker Desktop/daemon is running.
+        EXIT /B 1
+    )
 
-:Clean
-echo Stopping and deleting data volumes...
-docker compose down -v
-echo Environment cleaned up.
-GOTO :EOF
+    echo.
+    echo Environment is up!
+    echo - Kafka Broker: localhost:9092
+    echo - Schema Registry: http://localhost:8081
+    echo - AKHQ UI: http://localhost:8080
+    echo - ksqlDB Server: http://localhost:8088
+    echo.
+    echo Type 'local-env help' to see available commands.
+    EXIT /B 0
 
-:Status
-echo Container Status:
-docker compose ps
-GOTO :EOF
+:stop
+    echo Stopping local environment...
+    docker compose down
+    EXIT /B
 
-:Logs
-echo Tailing logs (Press Ctrl+C to exit)...
-docker compose logs -f --tail=50
-GOTO :EOF
+:clean
+    echo Stopping and deleting data volumes...
+    docker compose down -v
+    echo Environment cleaned up.
+    EXIT /B
 
-:Ksql
-echo Opening ksqlDB CLI...
-docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
-GOTO :EOF
+:status
+    echo Container Status:
+    docker compose ps
+    EXIT /B
 
-:TestData
-echo Seeding items test data via ksqlDB...
+:logs
+    echo Tailing logs (Press Ctrl+C to exit)...
+    docker compose logs -f --tail=50
+    EXIT /B
 
-IF NOT EXIST test-data.sql (
-    echo Error: test-data.sql not found in the current directory!
-    GOTO :EOF
-)
+:ksql
+    echo Opening ksqlDB CLI...
+    docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
+    EXIT /B
 
-:: Pipe the file into the ksqldb container
-type test-data.sql | docker exec -i ksqldb-cli ksql http://ksqldb-server:8088
+:test-data
+    echo Seeding items test data via ksqlDB...
 
-echo.
-echo Test data seeded successfully!
-echo View it in AKHQ (http://localhost:8080) or run 'local-env ksql' and type: SELECT * FROM items EMIT CHANGES;
-GOTO :EOF
+    IF NOT EXIST test-data.sql (
+        echo Error: test-data.sql not found in the current directory!
+        EXIT /B 1
+    )
+
+    :: Pipe the file into the ksqldb container
+    type test-data.sql | docker exec -i ksqldb-cli ksql http://ksqldb-server:8088
+
+    echo.
+    echo Test data seeded successfully!
+    echo View it in AKHQ (http://localhost:8080) or run 'local-env ksql' and type: SELECT * FROM items EMIT CHANGES;
+    EXIT /B 0
+
+:route
+    SET "COMMAND=%~1"
+
+    IF /I "%COMMAND%"=="start" (
+        CALL :start
+    ) ELSE IF /I "%COMMAND%"=="stop" (
+        CALL :stop
+    ) ELSE IF /I "%COMMAND%"=="clean" (
+        CALL :clean
+    ) ELSE IF /I "%COMMAND%"=="status" (
+        CALL :status
+    ) ELSE IF /I "%COMMAND%"=="logs" (
+        CALL :logs
+    ) ELSE IF /I "%COMMAND%"=="ksql" (
+        CALL :ksql
+    ) ELSE IF /I "%COMMAND%"=="test-data" (
+        CALL :test-data
+    ) ELSE (
+        CALL :help
+    )
+
+    EXIT /B %ERRORLEVEL%

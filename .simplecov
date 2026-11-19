@@ -8,4 +8,4 @@ SimpleCov.formatters = [
 SimpleCov.use_merging true
 SimpleCov.merge_timeout 3600
 
-SimpleCov.add_filter "/test.sh"
+SimpleCov.add_filter "/test/"
