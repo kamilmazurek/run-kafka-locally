@@ -26,72 +26,9 @@ jobs:
       - name: Install bashcov
         run: gem install bashcov simplecov-cobertura
 
-      - name: Make wrapper script executable
-        run: chmod +x local-env
-
-      - name: Display help
-        run: |
-          bashcov -- ./local-env help
-          bashcov -- ./local-env unknown-command
-
-      - name: Start the local environment
-        run: bashcov -- ./local-env start
-
-      - name: Wait for environment initialization
-        run: sleep 30
-
-      - name: Verify Kafka broker is ready
-        run: docker exec kafka kafka-topics --bootstrap-server localhost:9092 --list
-
-      - name: Verify Schema Registry is reachable
-        run: curl --fail --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors http://localhost:8081/subjects > /dev/null
-
-      - name: Verify ksqlDB Server is healthy
-        run: curl --fail --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors http://localhost:8088/healthcheck > /dev/null
-
-      - name: Verify AKHQ UI is reachable
-        run: curl --fail --silent --show-error --location --retry 10 --retry-delay 5 --retry-all-errors http://localhost:8080 > /dev/null
-
-      - name: Display container status
-        run: bashcov -- ./local-env status
-
-      - name: Test seeding data
-        run: bashcov -- ./local-env test-data
-
-      - name: Open ksqlDB CLI
-        timeout-minutes: 2
-        run: echo "exit" | script --quiet --return --command "bashcov -- ./local-env ksql" /dev/null
-
-      - name: Tail logs
-        timeout-minutes: 2
-        run: |
-          bashcov -- ./local-env logs > "$RUNNER_TEMP/logs.txt" &
-          sleep 10
-          pkill -f "compose logs -f"
-          wait || true
-          grep -q "Tailing logs" "$RUNNER_TEMP/logs.txt"
-          cat "$RUNNER_TEMP/logs.txt"
-
-      - name: Stop the local environment
-        run: bashcov -- ./local-env stop
-
-      - name: Test start failure when Docker is unavailable
-        run: |
-          if DOCKER_HOST=unix:///nonexistent.sock bashcov --command-name "start without Docker" -- ./local-env start; then
-            echo "Expected start to fail when Docker is unavailable"
-            exit 1
-          fi
-
-      - name: Test seeding data without test-data.sql
-        run: |
-          mv test-data.sql "$RUNNER_TEMP/test-data.sql"
-          status=0
-          bashcov --command-name "test-data without test-data.sql" -- ./local-env test-data || status=$?
-          mv "$RUNNER_TEMP/test-data.sql" test-data.sql
-          if [ "$status" -eq 0 ]; then
-            echo "Expected test-data to fail when test-data.sql is missing"
-            exit 1
-          fi
+      - name: Run tests
+        timeout-minutes: 15
+        run: bash test.sh
 
       - name: Display logs on failure
         if: failure()
