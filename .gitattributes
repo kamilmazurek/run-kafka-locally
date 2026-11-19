@@ -1,2 +1,3 @@
-dev-env text eol=lf
+local-env text eol=lf
 *.bat text eol=crlf
+*.sh text eol=lf
